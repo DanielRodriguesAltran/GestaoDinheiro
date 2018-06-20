@@ -1,0 +1,87 @@
+﻿@model IEnumerable<GestaoDinheiro.Models.Movimento>
+
+@{
+    ViewBag.Title = "Upload Csv";
+}
+
+<h2>Upload File</h2>
+
+@using (Html.BeginForm("Upload", "Movimentoes", null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary()
+
+    <div class="form-group">
+        <input type="file" id="dataFile" name="upload" />
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Upload" class="btn btn-default" />
+        @Html.ActionLink("Remover Todos Movimentos", "RemoveAll", null, new { @class = "btn btn-danger btn-sm", id = "rem" })
+    </div>
+
+    <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+               
+                    @foreach (var files in Directory.GetFiles(@"C:\Users\dvrodrigues\source\repos\GestaoDinheiro\GestaoDinheiro\App_Data\uploads\"+User.Identity.Name))
+                    {
+                        FileInfo info = new FileInfo(files);
+                        var fileName = Path.GetFileName(info.FullName);
+                        DateTime data = info.CreationTime;
+                <tr>
+                    <td>@fileName</td>
+                    <td>@data</td>
+                    <td>
+                        @Html.ActionLink(" ", "DeleteFiles", new { name = fileName }, new { @class = "btn btn-danger btn-sm glyphicon glyphicon-trash" })
+                    </td>
+                </tr>
+                    }
+
+                
+
+            </tbody>
+        </table>
+
+                    if (Model != null)
+                    {
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Descricao</th>
+                    <th>Valor</th>
+                    <th>Saldo Atual</th>
+                    <th>Tipo Movimento</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.DataTime</td>
+                        <td>@item.Descricao</td>
+                        <td>@item.Valor</td>
+                        <td>@item.Saldo_Atual</td>
+                        @if (item.Tipo.ToString() == "Debito")
+                        {
+
+                            <td class="btn btn-danger">@item.Tipo</td>
+                        }
+                        else
+                        {
+                            <td class=" btn btn-success">@item.Tipo</td>
+                        }
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+    }
+}

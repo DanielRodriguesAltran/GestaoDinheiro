@@ -1,0 +1,130 @@
+﻿@model IEnumerable<GestaoDinheiro.Models.Movimento>
+
+@{
+    ViewBag.Title = "Index";
+    double countLucro = 0;
+    double countGastos = 0;
+    double countRecebidos = 0;
+    var selMes = ViewBag.selMes;
+}
+
+@*<h2>Index</h2>
+
+    <p>
+        @Html.ActionLink("Create New", "Create",new { },new { @class = "btn btn-success btn-md" })
+    </p>*@
+
+<form name="formMes" method="get" action="" style="margin-top:10px;">
+    <label>Escolha o mes</label>
+    <select id="selMes" name="selMes" class="selectpicker">
+        <option @(selMes == 0 ? "selected" : "") value="0">Todos</option>
+        <option @(selMes == 1 ? "selected" : "") value="1">Janeiro</option>
+        <option @(selMes == 2 ? "selected" : "") value="2">Fevereiro</option>
+        <option @(selMes == 3 ? "selected" : "") value="3">Março</option>
+        <option @(selMes == 4 ? "selected" : "") value="4">Abril</option>
+        <option @(selMes == 5 ? "selected" : "") value="5">Maio</option>
+        <option @(selMes == 6 ? "selected" : "") value="6">Junho</option>
+        <option @(selMes == 7 ? "selected" : "") value="7">Julho</option>
+        <option @(selMes == 8 ? "selected" : "") value="8">Agosto</option>
+        <option @(selMes == 9 ? "selected" : "") value="9">Setembro</option>
+        <option @(selMes == 10 ? "selected" : "") value="10">Outubro</option>
+        <option @(selMes == 11 ? "selected" : "") value="11">Novembro</option>
+        <option @(selMes == 12 ? "selected" : "") value="12">Dezembro</option>
+    </select>
+    @*<button class="btn btn-info" type="submit">Procurar</button>*@
+</form>
+
+<div class="table-wrapper-2" style="margin-top:10px;">
+    <table class="table table-responsive-md">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.DataTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Descricao)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Valor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Saldo_Atual)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tipo)
+            </th>
+            <th></th>
+        </tr>
+        @if (Model.Count() > 0)
+        {
+            foreach (var item in Model)
+            {
+                countLucro += item.Valor;
+                var tw = "";
+                if (item.Tipo.ToString().Equals("Debito") || item.Tipo.ToString().Equals("Transferencia") || item.Tipo.ToString().Equals("Pagamento") || item.Tipo.ToString().Equals("Levantamento"))
+                {
+                    countGastos += item.Valor;
+                    tw = "text-danger";
+                }
+                else
+                {
+                    countRecebidos += item.Valor;
+                    tw = "text-success";
+                }
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DataTime)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Descricao)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Valor)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Saldo_Atual)
+                    </td>
+                    <td>
+                        <label class="@tw">@item.Tipo</label>
+                    </td>
+                    <td>
+                        @Html.ActionLink(" ", "Edit", new { id = item.Id }, new { @class = "btn btn-primary btn-sm glyphicon glyphicon-pencil" })
+                        @Html.ActionLink(" ", "Details", new { id = item.Id }, new { @class = "btn btn-warning btn-sm glyphicon glyphicon-menu-hamburger" })
+                        @Html.ActionLink(" ", "Delete", new { id = item.Id }, new { @class = "btn btn-danger btn-sm glyphicon glyphicon-trash" })
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td>Nao tem movimentos</td></tr>
+        }
+    </table>
+</div>
+@{
+    var split = "" + countGastos;
+    if (countGastos < 0)
+    {
+        countGastos = Double.Parse(split.Remove(0, 1));
+    }
+}
+@if (Model.Count() > 0)
+{
+    <div class="row mar">
+        <div class="col-md-6">
+            <img src="@Url.Action("CharterColumn", new { selMes = selMes })" alt="Chart" />
+        </div><div class="col-md-6">
+            <img src="@Url.Action("CharterColumn2", new { Gasto = countGastos, Rec = countRecebidos, Luc = countLucro })" alt="Chart" />
+        </div>
+    </div>
+
+}
+@section Scripts{
+    <script>
+    $(function(){
+    $("#selMes").change(function(){
+    var v=$(this).val();
+    window.location.href="@Url.Action("Index", "Movimentoes")?selMes="+v;
+    });
+    });
+    </script>
+}
