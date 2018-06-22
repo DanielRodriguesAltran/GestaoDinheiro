@@ -47,14 +47,16 @@ namespace GestaoDinheiro.Controllers
             ViewBag.UserId = userId;
             if (selMes > 0)
             {
-                var mov = db.Movimentos.Where(x => x.Dono == userId).Where(s => s.DataTime.Month == selMes).Take(10).ToList();
+                var mov = db.Movimentos.Where(x => x.Dono == userId).Where(s => s.DataTime.Month == selMes).ToList();
                 return View(mov);
             }
+            
             return View(db.Movimentos.Where(x => x.Dono == userId).OrderByDescending(x => x.DataTime).ToList());
         }
 
         public ActionResult CharterColumn(int selMes = 0)
         {
+            userId = GetUserId();
             if (selMes == 0)
             {
                 selMes = DateTime.Now.Month;
@@ -63,13 +65,13 @@ namespace GestaoDinheiro.Controllers
             var _context = new ApplicationDbContext();
             ArrayList xValue = new ArrayList();
             ArrayList yValue = new ArrayList();
-
+            
             var res = db.Movimentos.Where(y => y.Dono == userId).Where(x => x.DataTime.Month == selMes).GroupBy(d => d.Tipo)
             .Select(
-                m => new
+                m2 => new
                 {
-                    Valor = m.Sum(s => s.Valor),
-                    Tipo = m.FirstOrDefault().Tipo.ToString()
+                    Valor = m2.Sum(s => s.Valor),
+                    Tipo = m2.FirstOrDefault().Tipo.ToString()
                 }).ToList();
             res.ToList().ForEach(rs => xValue.Add(rs.Tipo));
             res.ToList().ForEach(rs => yValue.Add(rs.Valor));
@@ -236,56 +238,68 @@ namespace GestaoDinheiro.Controllers
                 // extract only the filename
                 var fileName = Path.GetFileName(upload.FileName);
                 // store the file inside ~/App_Data/uploads folder
+
                 var fh = "~/App_Data/uploads/" + User.Identity.Name + "/";
+                bool exists = System.IO.Directory.Exists(Server.MapPath(fh));
+
+                if (!exists)
+                    System.IO.Directory.CreateDirectory(Server.MapPath(fh));
                 path = Path.Combine(Server.MapPath(fh) + fileName);
                 upload.SaveAs(path);
-            }
-            ConnexionExcel ConxObject = new ConnexionExcel(path);
-            //Query a worksheet with a header row  
 
-            var query1 = from a in ConxObject.UrlConnexion.Worksheet<Movimento>(0)
-                         select a;
-            foreach (var result in query1)
-            {
-                if (!String.IsNullOrEmpty(result.Descricao))
+                ConnexionExcel ConxObject = new ConnexionExcel(path);
+                //Query a worksheet with a header row  
+
+                var query1 = from a in ConxObject.UrlConnexion.Worksheet<Movimento>(0)
+                             select a;
+                foreach (var result in query1)
                 {
-                    Tipo t;
-                    if (result.Descricao.Contains("-LEV-") && result.Valor < 0)
+                    if (!String.IsNullOrEmpty(result.Descricao))
                     {
-                        t = Tipo.Levantamento;
+
+                        //Viola o Liskov Substituion Principle
+                        Tipo t;
+                        if (result.Descricao.Contains("LEV") && result.Valor < 0)
+                        {
+                            t = Tipo.Levantamento;
+                        }
+                        else if ((result.Descricao.Contains("TRF") || result.Descricao.Contains("TRANS")) && result.Valor < 0)
+                        {
+                            t = Tipo.Transferencia;
+                        }
+                        else if ((result.Descricao.Contains("TRF") || result.Descricao.Contains("TRANS") || result.Descricao.Contains("DEP")) && result.Valor > 0)
+                        {
+                            t = Tipo.Deposito;
+                        }
+                        else if(result.Descricao.Contains("REFORCO") && result.Valor < 0){
+                            t = Tipo.Deposito;
+                            result.Valor = 0;
+                        }
+                        else if (result.Valor > 0)
+                        {
+                            t = Tipo.Recebido;
+                        }
+                        else
+                        {
+                            t = Tipo.Pagamento;
+                        }
+                        Movimento m = new Movimento
+                        {
+                            DataTime = result.DataTime,
+                            Descricao = result.Descricao,
+                            Valor = result.Valor,
+                            Saldo_Atual = result.Saldo_Atual,
+                            Tipo = t,
+                            Dono = userId
+                        };
+                        movimentos.Add(m);
+                        repo.Insert(m);
                     }
-                    else if ((result.Descricao.Contains("TRF") || result.Descricao.Contains("TRANS")) && result.Valor < 0)
-                    {
-                        t = Tipo.Transferencia;
-                    }
-                    else if ((result.Descricao.Contains("TRF") || result.Descricao.Contains("TRANS") || result.Descricao.Contains("DEP")) && result.Valor > 0)
-                    {
-                        t = Tipo.Deposito;
-                    }
-                    else if (result.Valor > 0)
-                    {
-                        t = Tipo.Recebido;
-                    }
-                    else
-                    {
-                        t = Tipo.Pagamento;
-                    }
-                    Movimento m = new Movimento
-                    {
-                        DataTime = result.DataTime,
-                        Descricao = result.Descricao,
-                        Valor = result.Valor,
-                        Saldo_Atual = result.Saldo_Atual,
-                        Tipo = t,
-                        Dono = userId
-                    };
-                    movimentos.Add(m);
-                    repo.Insert(m);
+
+
                 }
-
-
+                repo.Commit();
             }
-            repo.Commit();
             return View();
         }
 
@@ -293,6 +307,16 @@ namespace GestaoDinheiro.Controllers
         {
             MovimentosRepository repo = new MovimentosRepository(db);
             repo.RemoveAll();
+            string fullPath = Request.MapPath("~/App_Data/uploads/" + User.Identity.Name);
+            System.IO.DirectoryInfo di = new DirectoryInfo(fullPath);
+            foreach (FileInfo file in di.GetFiles())
+            {
+                file.Delete();
+            }
+            foreach (DirectoryInfo dir in di.GetDirectories())
+            {
+                dir.Delete(true);
+            }
             return RedirectToAction("Upload");
         }
 

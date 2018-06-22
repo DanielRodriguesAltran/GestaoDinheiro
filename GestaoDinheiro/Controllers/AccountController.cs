@@ -155,6 +155,11 @@ namespace GestaoDinheiro.Controllers
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    
+                    bool exists = System.IO.Directory.Exists(Server.MapPath(@"~\App_Data\uploads\" + user.Email));
+
+                    if (!exists)
+                        System.IO.Directory.CreateDirectory(Server.MapPath(@"~\App_Data\uploads\" + user.Email));
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
                     
                     // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
@@ -163,7 +168,7 @@ namespace GestaoDinheiro.Controllers
                     // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                     // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
 
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Movimentoes");
                 }
                 AddErrors(result);
             }
@@ -449,7 +454,7 @@ namespace GestaoDinheiro.Controllers
             {
                 return Redirect(returnUrl);
             }
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Movimentoes");
         }
 
         internal class ChallengeResult : HttpUnauthorizedResult

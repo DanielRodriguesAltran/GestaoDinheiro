@@ -11,9 +11,9 @@ namespace GestaoDinheiro.Models
         [Key]
         public int Id { get; set; }
         [Required]
-        [DataType(DataType.DateTime)]
+        //[DataType(DataType.DateTime)]
         [Display(Name = "Data")]
-        [DisplayFormat(DataFormatString = "{0: dd/MM/yyyy hh:mm}")]
+        //[DisplayFormat(DataFormatString = "{0: dd/MM/yyyy hh:mm}")]
         public DateTime DataTime { get; set; }
         [Required]
         public string Descricao { get; set; }

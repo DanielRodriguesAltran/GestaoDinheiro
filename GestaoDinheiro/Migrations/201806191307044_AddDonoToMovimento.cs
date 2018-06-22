@@ -7,12 +7,12 @@ namespace GestaoDinheiro.Migrations
     {
         public override void Up()
         {
-            AlterColumn("dbo.Movimentoes", "Dono", c => c.String(nullable: false));
+            AddColumn("dbo.Movimentoes", "Dono", c => c.String(nullable: false));
         }
         
         public override void Down()
         {
-            AlterColumn("dbo.Movimentoes", "Dono", c => c.String());
+            //AlterColumn("dbo.Movimentoes", "Dono", c => c.String());
         }
     }
 }
