@@ -1,4 +1,4 @@
-﻿using GestaoDinheiro.Models;
+﻿using  Entidades.Models;
 using GestaoDinheiro.Repository;
 using LumenWorks.Framework.IO.Csv;
 using System;

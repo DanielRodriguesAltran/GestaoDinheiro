@@ -1,17 +1,16 @@
-﻿@model GestaoDinheiro.Models.Movimento
+﻿@model Entidades.Models.Movimento
 
 @{
     ViewBag.Title = "Edit";
 }
 
-<h2>Edit</h2>
+<h2>Editar Movimento</h2>
 
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
 
     <div class="form-horizontal">
-        <h4>Movimento</h4>
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         @Html.HiddenFor(model => model.Id)
@@ -19,14 +18,11 @@
         <div class="form-group">
             @Html.LabelFor(model => model.DataTime, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.DataTime, "{0:dd/MM/yy", new { htmlAttributes = new { @class = "form-control", @id = "date" } })
+                @Html.EditorFor(model => model.DataTime, new { htmlAttributes = new { @class = "form-control", @id = "date" } })
                 @Html.ValidationMessageFor(model => model.DataTime, "", new { @class = "text-danger" })
                 
             </div>
         </div>
-
-
-
         <div class="form-group">
             @Html.LabelFor(model => model.Descricao, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
@@ -58,10 +54,18 @@
                 @Html.ValidationMessageFor(model => model.Tipo, "", new { @class = "text-danger" })
             </div>
         </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Departamento, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EnumDropDownListFor(model => model.Departamento, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Departamento, "", new { @class = "text-danger" })
+            </div>
+        </div>
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Save" class="btn btn-default" />
+                <input type="submit" value="Guardar" class="btn btn-success" />
+                @Html.ActionLink("Voltar", "Index", "", new { @class = "btn btn-danger" })
             </div>
         </div>
     </div>
@@ -70,16 +74,19 @@
 
 
 <div>
-    @Html.ActionLink("Back to List", "Index")
+    
 </div>
 
 @section Scripts{
     <script>
         $(function () { //DOM ready
-            $("#date").datetimepicker({
-                changeMonth: true,
-                changeYear: true,
-                dateFormat: 'dd/mm/yy hh:mm' });
+            $("#date").datetimepicker(
+                //{
+                //changeMonth: true,
+                //changeYear: true,
+                //    dateFormat: 'dd/mm/yy hh:mm'
+                //}
+            );
         });
     </script>
 

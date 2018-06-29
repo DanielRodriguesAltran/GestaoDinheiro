@@ -1,9 +1,10 @@
 ﻿using GestaoDinheiro.Interfaces;
-using GestaoDinheiro.Models;
+using Entidades.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Microsoft.AspNet.Identity;
 
 namespace GestaoDinheiro.Repository
 {
@@ -49,9 +50,10 @@ namespace GestaoDinheiro.Repository
             }
         }
 
-        public void RemoveAll()
+        public void RemoveAll(string id)
         {
-            foreach (var item in _context.Movimentos)
+           
+            foreach (var item in _context.Movimentos.Where(user=>user.Dono==id))
             {
                 _context.Movimentos.Remove(item);
             }

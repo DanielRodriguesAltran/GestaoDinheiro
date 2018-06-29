@@ -1,4 +1,4 @@
-﻿@model IEnumerable<GestaoDinheiro.Models.Movimento>
+﻿@model IEnumerable<Entidades.Models.Movimento>
 
 @{
     ViewBag.Title = "Index";
@@ -7,7 +7,7 @@
     double countRecebidos = 0;
     var selMes = ViewBag.selMes;
 }
-
+@*<link href="~/Content/morris.css" rel="stylesheet" />*@
 <form name="formMes" method="get" action="" style="margin-top:10px;">
     <label>Escolha o mes</label>
     <select id="selMes" name="selMes" class="selectpicker">
@@ -27,7 +27,12 @@
     </select>
     @*<button class="btn btn-info" type="submit">Procurar</button>*@
 </form>
-
+@if (Model.Count() > 0)
+{
+    <div class="col-sm-12 text-center">
+        <div id="bar-chart" style="min-height:250px;"></div>
+    </div>
+}
 <div class="table-wrapper-2 col-sm-12" style="margin-top:10px;">
     <table class="table table-responsive-md">
         <tr>
@@ -45,6 +50,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Tipo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Departamento)
             </th>
             <th></th>
         </tr>
@@ -81,11 +89,22 @@
                         <label class="@tw">@item.Tipo</label>
                     </td>
                     <td>
+                        @if (item.Valor < 0)
+                        {
+                            @Html.EnumDropDownListFor(modelItem => item.Departamento, htmlAttributes: new { @class = "form-control selDepart", @data_mov = item.Id })
+                        }
+                        else
+                        {
+                            <label class="@tw">@item.Tipo</label>
+                        }
+                    </td>
+                    <td>
                         @Html.ActionLink(" ", "Edit", new { id = item.Id }, new { @class = "btn btn-primary btn-sm glyphicon glyphicon-pencil" })
                         @Html.ActionLink(" ", "Details", new { id = item.Id }, new { @class = "btn btn-warning btn-sm glyphicon glyphicon-menu-hamburger" })
                         @Html.ActionLink(" ", "Delete", new { id = item.Id }, new { @class = "btn btn-danger btn-sm glyphicon glyphicon-trash" })
                     </td>
                 </tr>
+
             }
         }
         else
@@ -104,23 +123,83 @@
 @if (Model.Count() > 0)
 {
     <div class="mar">
-            <div class="col-sm-12 col-md-6">
-                <img src="@Url.Action("CharterColumn", new { selMes = selMes })" alt="Chart" />
-            </div>        
-            <div class="col-sm-12 col-md-6">
-                <img src="@Url.Action("CharterColumn2", new { Gasto = countGastos, Rec = countRecebidos, Luc = countLucro })" alt="Chart" />
-            </div>
-        
+        <div class="col-sm-12 col-md-6">
+            <img src="@Url.Action("CharterColumn", new { selMes = selMes })" alt="Chart" />
+        </div>
+        <div class="col-sm-12 col-md-6">
+            <img src="@Url.Action("CharterColumn2", new { Gasto = countGastos, Rec = countRecebidos, Luc = countLucro })" alt="Chart" />
+        </div>
+
     </div>
 
 }
 @section Scripts{
+    <script src="~/Scripts/morris/morris.min.js"></script>
+    <script src="~/Scripts/morris/raphael.min.js"></script>
     <script>
-    $(function(){
+        $(function () {
+            updateGraph();
     $("#selMes").change(function(){
-    var v=$(this).val();
+        var v = $(this).val();
+
     window.location.href="@Url.Action("Index", "Movimentoes")?selMes="+v;
-    });
-    });
+        });
+
+        $(".selDepart").change(function () {
+            var v = $(this).val();
+            var cid = $(this).data('mov');
+            $.get('@Url.Action("UpdateDepart", "Movimentoes")?value=' + v + "&id=" + cid, function () {
+                updateGraph();
+            });
+
+        });
+        function updateGraph() {
+            var selMes = $('#selMes').val();
+            $('#bar-chart').children().remove();
+            $.get('@Url.Action("CharterColumn3", "Movimentoes", new { selMes= selMes})', function (result) {
+            new Morris.Bar(
+                {
+                    element: 'bar-chart',
+                    data: result,
+                    xkey: 'label',
+                    ykeys: ['value'],
+                    labels: ['Gastou(€)'],
+                    baraRatio: 0.6,
+                    hideHover: 'auto',
+                    behaveLikeLine: true,
+                    resize: true,
+                    pointFillColors: ['#ffffff'],
+                    pointStrokeColors: ['black'],
+                    barColors: ['#d9534f'],
+                    lineColors: ['gray', 'red']
+                });
+            });
+        }
+        });
     </script>
 }
+
+
+
+@*//var data = [
+    //    { y: 'Supermecado', a: 50},
+    //    { y: 'Restaurante', a: 65},
+    //    { y: 'Educaçao', a: 50},
+    //    { y: 'Transportes', a: 75},
+    //    { y: 'Saude', a: 80}
+    //],
+    //    config = {
+    //        data: data,
+    //        xkey: 'y',
+    //        ykeys: ['a'],
+    //        labels: ['Total Spent(€)'],
+    //        fillOpacity: 0.6,
+    //        hideHover: 'auto',
+    //        behaveLikeLine: true,
+    //        resize: true,
+    //        pointFillColors: ['#ffffff'],
+    //        pointStrokeColors: ['black'],
+    //        lineColors: ['gray', 'red']
+    //    };
+    //config.element = 'bar-chart';
+    //Morris.Bar(config);*@

@@ -29,6 +29,7 @@ namespace GestaoDinheiro
                       "~/Content/bootstrap-select.css",
                       "~/Content/bootstrap-select.min.css",
                       "~/Content/jquery.datetimepicker.css",
+                      "~/Content/morris.css",
                       "~/Content/site.css"));
         }
     }

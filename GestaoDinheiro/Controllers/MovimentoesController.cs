@@ -11,7 +11,8 @@ using System.Security.Claims;
 using System.Web;
 using System.Web.Helpers;
 using System.Web.Mvc;
-using GestaoDinheiro.Models;
+using Entidades.Helpers;
+using Entidades.Models;
 using GestaoDinheiro.Repository;
 
 namespace GestaoDinheiro.Controllers
@@ -50,7 +51,7 @@ namespace GestaoDinheiro.Controllers
                 var mov = db.Movimentos.Where(x => x.Dono == userId).Where(s => s.DataTime.Month == selMes).ToList();
                 return View(mov);
             }
-            
+
             return View(db.Movimentos.Where(x => x.Dono == userId).OrderByDescending(x => x.DataTime).ToList());
         }
 
@@ -65,7 +66,7 @@ namespace GestaoDinheiro.Controllers
             var _context = new ApplicationDbContext();
             ArrayList xValue = new ArrayList();
             ArrayList yValue = new ArrayList();
-            
+
             var res = db.Movimentos.Where(y => y.Dono == userId).Where(x => x.DataTime.Month == selMes).GroupBy(d => d.Tipo)
             .Select(
                 m2 => new
@@ -83,6 +84,7 @@ namespace GestaoDinheiro.Controllers
                 .Write("bmp");
             return null;
         }
+
 
         public ActionResult CharterColumn2(double Gasto, double Rec, double Luc)
         {
@@ -107,7 +109,34 @@ namespace GestaoDinheiro.Controllers
                 .Write("bmp");
             return null;
         }
+        [HttpGet]
+        public ActionResult CharterColumn3(int selMes = 0)
+        {
+            userId = GetUserId();
+            List<MorrisBarChart> result;
+            
+                 result = db.Movimentos.ToList()
+               .Where(y => y.Dono == userId)
+               .Where(m =>(selMes == 0) ?(true):(m.DataTime.Month == selMes))
+               .Where(de => de.Departamento != 0)
+               .GroupBy(d => d.Departamento)
+               .Select(
+               cl => new MorrisBarChart
+               {
+                   id = cl.FirstOrDefault().Id,
+                   value = cl.Sum(c => c.Valor),
+                   label = cl.FirstOrDefault().Departamento.ToString()
+               }).ToList();
+            
+           
 
+            result.ForEach(x => x.label=x.label);
+
+            var data = result.Select(x => new { label = x.label, value = Math.Round(Math.Abs(x.value),2) }).OrderByDescending(x => x.value).ToArray();
+
+            return Json(data, JsonRequestBehavior.AllowGet);
+
+        }
         // GET: Movimentoes/Details/5
         public ActionResult Details(int? id)
         {
@@ -134,7 +163,7 @@ namespace GestaoDinheiro.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,DataTime,Local,Descricao,Valor,Saldo_Atual,Tipo")] Movimento movimento)
+        public ActionResult Create([Bind(Include = "Id,DataTime,Local,Descricao,Valor,Saldo_Atual,Tipo,Departamento")] Movimento movimento)
         {
             userId = GetUserId();
 
@@ -172,13 +201,20 @@ namespace GestaoDinheiro.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,DataTime,Local,Descricao,Valor,Saldo_Atual,Tipo")] Movimento movimento)
+        public ActionResult Edit([Bind(Include = "Id,DataTime,Local,Descricao,Valor,Saldo_Atual,Tipo,Departamento")] Movimento movimento)
         {
-            if (ModelState.IsValid)
+            userId = GetUserId();
+
+            if (userId != null)
             {
-                db.Entry(movimento).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                movimento.Dono = userId;
+                ModelState["Dono"].Errors.Clear();
+                if (ModelState.IsValid)
+                {
+                    db.Entry(movimento).State = EntityState.Modified;
+                    db.SaveChanges(); db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
             }
             return View(movimento);
         }
@@ -259,9 +295,11 @@ namespace GestaoDinheiro.Controllers
 
                         //Viola o Liskov Substituion Principle
                         Tipo t;
+                        Departamento d=Departamento.Escolha;
                         if (result.Descricao.Contains("LEV") && result.Valor < 0)
                         {
                             t = Tipo.Levantamento;
+                            d = Departamento.Levantamento;
                         }
                         else if ((result.Descricao.Contains("TRF") || result.Descricao.Contains("TRANS")) && result.Valor < 0)
                         {
@@ -271,7 +309,8 @@ namespace GestaoDinheiro.Controllers
                         {
                             t = Tipo.Deposito;
                         }
-                        else if(result.Descricao.Contains("REFORCO") && result.Valor < 0){
+                        else if (result.Descricao.Contains("REFORCO") && result.Valor < 0)
+                        {
                             t = Tipo.Deposito;
                             result.Valor = 0;
                         }
@@ -283,14 +322,15 @@ namespace GestaoDinheiro.Controllers
                         {
                             t = Tipo.Pagamento;
                         }
-                        Movimento m = new Movimento
+                        Movimento m = new Movimento //Viola Dependency Inversion Principle
                         {
                             DataTime = result.DataTime,
                             Descricao = result.Descricao,
                             Valor = result.Valor,
                             Saldo_Atual = result.Saldo_Atual,
                             Tipo = t,
-                            Dono = userId
+                            Dono = userId,
+                            Departamento=d
                         };
                         movimentos.Add(m);
                         repo.Insert(m);
@@ -306,7 +346,8 @@ namespace GestaoDinheiro.Controllers
         public ActionResult RemoveAll()
         {
             MovimentosRepository repo = new MovimentosRepository(db);
-            repo.RemoveAll();
+            userId = GetUserId();
+            repo.RemoveAll(userId);
             string fullPath = Request.MapPath("~/App_Data/uploads/" + User.Identity.Name);
             System.IO.DirectoryInfo di = new DirectoryInfo(fullPath);
             foreach (FileInfo file in di.GetFiles())
@@ -329,6 +370,23 @@ namespace GestaoDinheiro.Controllers
                 System.IO.File.Delete(fullPath);
             }
             return RedirectToAction("Upload");
+        }
+
+        public ActionResult UpdateDepart(int value, int id)
+        {
+            userId = GetUserId();
+            Movimento mov = db.Movimentos.Find(id);
+
+            Departamento d = (Departamento)Enum.ToObject(typeof(Departamento), (int)value);
+
+            if (userId != null && mov.Dono == userId)
+            {
+                mov.Departamento = d;
+                db.Entry(mov).State = EntityState.Modified;
+                db.SaveChanges(); db.SaveChanges();
+                Console.WriteLine(value);
+            }
+            return RedirectToAction("Index");
         }
 
 

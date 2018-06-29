@@ -5,7 +5,7 @@ namespace GestaoDinheiro.Migrations
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<GestaoDinheiro.Models.ApplicationDbContext>
+    internal sealed class Configuration : DbMigrationsConfiguration<Entidades.Models.ApplicationDbContext>
     {
         public Configuration()
         {
@@ -13,7 +13,7 @@ namespace GestaoDinheiro.Migrations
             ContextKey = "GestaoDinheiro.Models.ApplicationDbContext";
         }
 
-        protected override void Seed(GestaoDinheiro.Models.ApplicationDbContext context)
+        protected override void Seed(Entidades.Models.ApplicationDbContext context)
         {
             //  This method will be called after migrating to the latest version.
 

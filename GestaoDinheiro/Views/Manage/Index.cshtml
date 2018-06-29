@@ -1,4 +1,4 @@
-﻿@model GestaoDinheiro.Models.IndexViewModel
+﻿@model Entidades.Models.IndexViewModel
 @{
     ViewBag.Title = "Manage";
 }
@@ -15,7 +15,7 @@
         <dd>@Model.Nome</dd>
         <dt>Password:</dt>
         <dd>
-            [
+            
             @if (Model.HasPassword)
             {
                 @Html.ActionLink("Change your password", "ChangePassword")
@@ -24,7 +24,7 @@
             {
                 @Html.ActionLink("Create", "SetPassword")
             }
-            ]
+            
         </dd>
         <dt>External Logins:</dt>
         <dd>

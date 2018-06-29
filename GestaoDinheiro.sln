@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27703.2000
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestaoDinheiro", "GestaoDinheiro\GestaoDinheiro.csproj", "{C50CEDD3-8F09-439C-B7F8-A85369DE5506}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entidades", "Entidades\Entidades.csproj", "{FDD999DC-9F52-4E40-B0B1-2AC262612A94}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{C50CEDD3-8F09-439C-B7F8-A85369DE5506}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C50CEDD3-8F09-439C-B7F8-A85369DE5506}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C50CEDD3-8F09-439C-B7F8-A85369DE5506}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDD999DC-9F52-4E40-B0B1-2AC262612A94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDD999DC-9F52-4E40-B0B1-2AC262612A94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDD999DC-9F52-4E40-B0B1-2AC262612A94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDD999DC-9F52-4E40-B0B1-2AC262612A94}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

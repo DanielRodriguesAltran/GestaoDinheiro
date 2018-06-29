@@ -137,3 +137,4 @@ C:\Users\dvrodrigues\source\repos\GestaoDinheiro\GestaoDinheiro\obj\Release\Gest
 C:\Users\dvrodrigues\source\repos\GestaoDinheiro\GestaoDinheiro\obj\Release\GestaoDinheiro.csproj.CopyComplete
 C:\Users\dvrodrigues\source\repos\GestaoDinheiro\GestaoDinheiro\obj\Release\GestaoDinheiro.dll
 C:\Users\dvrodrigues\source\repos\GestaoDinheiro\GestaoDinheiro\obj\Release\GestaoDinheiro.pdb
+C:\Users\dvrodrigues\source\repos\GestaoDinheiro\GestaoDinheiro\obj\Release\GestaoDinheiro.Migrations.AddDepartamento.resources

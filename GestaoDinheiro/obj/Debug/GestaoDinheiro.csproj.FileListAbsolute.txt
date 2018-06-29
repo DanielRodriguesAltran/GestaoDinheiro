@@ -137,3 +137,7 @@ C:\Users\dvrodrigues\source\repos\GestaoDinheiro\GestaoDinheiro\obj\Debug\Gestao
 C:\Users\dvrodrigues\source\repos\GestaoDinheiro\GestaoDinheiro\obj\Debug\GestaoDinheiro.Migrations.CreateMov.resources
 C:\Users\dvrodrigues\source\repos\GestaoDinheiro\GestaoDinheiro\obj\Debug\GestaoDinheiro.Migrations.AddContadorToUser.resources
 C:\Users\dvrodrigues\source\repos\GestaoDinheiro\GestaoDinheiro\obj\Debug\GestaoDinheiro.Migrations.RemContadorToUser.resources
+C:\Users\dvrodrigues\source\repos\GestaoDinheiro\GestaoDinheiro\obj\Debug\GestaoDinheiro.Migrations.AddDepartamento.resources
+C:\Users\dvrodrigues\source\repos\GestaoDinheiro\GestaoDinheiro\bin\Entidades.dll
+C:\Users\dvrodrigues\source\repos\GestaoDinheiro\GestaoDinheiro\bin\Entidades.pdb
+C:\Users\dvrodrigues\source\repos\GestaoDinheiro\GestaoDinheiro\bin\Entidades.dll.config
